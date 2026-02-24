@@ -1,1 +1,505 @@
-<!doctype html><html><body><h1>OK</h1></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Ultra Pro Diego Edition v2 — Europa Divina II (24 Feb–14 Mar 2026)</title>
+
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <style>
+    :root{
+      --bg:#070b14; --text:#e7eaf4; --muted:#a9b2c7;
+      --accent:#4cc9f0; --accent2:#80ffdb; --warn:#ffcc66;
+      --shadow: 0 12px 28px rgba(0,0,0,.45); --r:18px;
+      --border: rgba(255,255,255,.10);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:
+        radial-gradient(1100px 650px at 25% -10%, rgba(76,201,240,.22), transparent 60%),
+        radial-gradient(900px 650px at 85% 5%, rgba(128,255,219,.14), transparent 60%),
+        linear-gradient(180deg, #050812, var(--bg));
+      color:var(--text);
+    }
+    header{max-width:1200px;margin:0 auto;padding:22px 16px 10px}
+    .hero{display:flex;gap:14px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+    h1{margin:0;font-size:clamp(20px,2.6vw,34px);letter-spacing:.2px}
+    .sub{margin-top:8px;color:var(--muted);line-height:1.5;max-width:950px}
+    .bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .pill{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:999px;padding:8px 10px;font-size:13px;color:var(--muted);backdrop-filter:blur(8px);display:flex;gap:8px;align-items:center}
+    .pill b{color:var(--text)}
+    main{max-width:1200px;margin:0 auto;padding:0 16px 42px}
+    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;align-items:start}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+    .h{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;align-items:flex-end;flex-wrap:wrap}
+    .h h2{margin:0;font-size:16px}
+    .h .small{color:var(--muted);font-size:13px}
+    .b{padding:12px 14px 14px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .search{flex:1;min-width:220px;display:flex;gap:8px;align-items:center;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:12px;padding:10px 12px}
+    .search input{width:100%;border:none;outline:none;background:transparent;color:var(--text);font-size:14px}
+    select,button{border:none;outline:none;background:rgba(0,0,0,.25);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:12px;font-size:13px;cursor:pointer}
+    button:hover{border-color:rgba(76,201,240,.55)}
+    #map{height:360px;border-radius:14px;overflow:hidden;border:1px solid var(--border)}
+    .tag{display:inline-flex;gap:6px;align-items:center;background:rgba(255,255,255,.06);border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+    .hint{color:var(--muted);font-size:12.5px;line-height:1.45;margin-top:8px}
+    .kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:520px){.kpi{grid-template-columns:1fr}}
+    .k{background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:14px;padding:12px}
+    .k .v{font-size:18px;font-weight:800}
+    .k .l{color:var(--muted);font-size:12.5px}
+    .box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px}
+    .box h3{margin:0 0 8px;font-size:13px;letter-spacing:.15px}
+    ul{margin:0;padding-left:18px;color:var(--muted);line-height:1.55}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .chip{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:999px;padding:7px 10px;font-size:12.5px;color:var(--muted)}
+    .chip b{color:var(--text)}
+    textarea{width:100%;min-height:110px;resize:vertical;border-radius:14px;background:rgba(0,0,0,.25);border:1px solid var(--border);color:var(--text);padding:10px 12px;outline:none;line-height:1.5;font-size:13.5px}
+    .list{display:grid;gap:10px;margin-top:12px}
+    details{background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    summary{list-style:none;cursor:pointer;padding:12px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+    summary::-webkit-details-marker{display:none}
+    .left{display:flex;gap:10px;align-items:center;min-width:0}
+    .badge{width:36px;height:36px;border-radius:12px;background:rgba(76,201,240,.16);border:1px solid rgba(76,201,240,.30);display:grid;place-items:center;flex:0 0 auto}
+    .city{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .city .name{font-weight:950;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .city .meta{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .right{text-align:right;display:flex;flex-direction:column;gap:2px;flex:0 0 auto}
+    .right .temps{font-size:12.5px;color:var(--warn);white-space:nowrap}
+    .right .nights{font-size:12.5px;color:var(--muted);white-space:nowrap}
+    .detail{padding:0 12px 12px;border-top:1px solid rgba(255,255,255,.08)}
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:12px}
+    @media (max-width:650px){.detail-grid{grid-template-columns:1fr}}
+    .daylist{display:grid;gap:10px}
+    .day{background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:14px;padding:12px}
+    .day .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+    .day .d{font-weight:950}
+    .day .where{color:var(--muted);font-size:13px;line-height:1.35}
+    .toggle{display:flex;gap:8px;align-items:center}
+    .switch{width:44px;height:26px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid var(--border);position:relative;cursor:pointer}
+    .switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:all .2s ease}
+    .switch.on::after{left:21px}
+    .type{font-weight:850;color:var(--text)}
+  </style>
+
+<link rel="manifest" href="manifest.json">
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+</script>
+
+</head>
+
+<body>
+<header>
+  <div class="hero">
+    <div>
+      <h1>Ultra Pro Diego Edition v2 ✈️ — Europa Divina II</h1>
+      <div class="sub">
+        Periodo: <b>24 feb – 14 mar 2026</b> · <b>19 días / 17 noches</b>. Agenda día a día (del PDF), ruta por ciudades con clima + recomendaciones, mapa, checklist de maleta y notas guardadas.
+      </div>
+      <div class="bar">
+        <div class="pill">🧊 <b>Frío:</b> térmica + guantes/gorro (Alpes)</div>
+        <div class="pill">☔ <b>Lluvia:</b> impermeable + zapato resistente al agua</div>
+        <div class="pill">🕶️ <b>Sol:</b> gafas (nieve y caminatas)</div>
+        <div class="pill">🧥 <b>Regla de oro:</b> capas (base + media + abrigo)</div>
+      </div>
+    </div>
+    <div class="toggle" title="Interfaz más grande para el celular">
+      <span class="small" style="color:var(--muted)">Modo viaje</span>
+      <div id="travelSwitch" class="switch" role="switch" aria-checked="false"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="card">
+      <div class="h">
+        <div>
+          <h2>Mapa + ruta (clic en pin)</h2>
+          <div class="small">Pins = ciudades con alojamiento. Paradas intermedias (Dover/Calais, Luxemburgo, Heidelberg, Lucerna, Vaduz, Padua, Pisa, Zaragoza) están en la agenda diaria.</div>
+        </div>
+        <div class="row">
+          <button id="fitRoute" type="button">Ver ruta completa</button>
+          <button id="printBtn" type="button">Imprimir / PDF</button>
+        </div>
+      </div>
+      <div class="b">
+        <div id="map"></div>
+        <div class="hint">
+          Vuelos:
+          <span class="tag" id="flightOut"></span>
+          <span class="tag" id="flightBack"></span>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card">
+      <div class="h">
+        <div>
+          <h2>Panel de control (Diego Mode)</h2>
+          <div class="small">Cuenta regresiva + maleta + notas.</div>
+        </div>
+      </div>
+      <div class="b">
+        <div class="kpi">
+          <div class="k">
+            <div class="v" id="countdown">—</div>
+            <div class="l">Días para iniciar (24 feb 2026)</div>
+          </div>
+          <div class="k">
+            <div class="v" id="checkedCount">0</div>
+            <div class="l">Checklist maleta (seleccionados)</div>
+          </div>
+        </div>
+
+        <div class="box" style="margin-top:10px">
+          <h3>Checklist maleta (contador + guardado)</h3>
+          <div id="packing"></div>
+          <div class="chips">
+            <span class="chip">🧦 <b>Pro tip:</b> calcetín térmico + plantilla</span>
+            <span class="chip">🧴 <b>Pro tip:</b> bálsamo labial (aire frío)</span>
+          </div>
+        </div>
+
+        <div class="box" style="margin-top:10px">
+          <h3>Notas rápidas (guardadas)</h3>
+          <textarea id="notes" placeholder="Ej: eSIM, adaptador EU, guantes, confirmar equipaje..."></textarea>
+          <div class="hint">Guardado automático en tu navegador (localStorage).</div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="card" style="grid-column: 1 / -1">
+      <div class="h">
+        <div>
+          <h2>Ruta por ciudades (alojamiento) — clima + hotel</h2>
+          <div class="small">Busca y filtra. Al abrir una ciudad verás tips rápidos y “Qué ponerte”.</div>
+        </div>
+        <div class="row">
+          <div class="search" style="max-width:340px">🔎 <input id="q" placeholder="Buscar: Roma, Francia, hotel…" autocomplete="off"/></div>
+          <select id="country"><option value="all">Todos los países</option></select>
+          <button id="expandAll" type="button">Expandir</button>
+          <button id="collapseAll" type="button">Colapsar</button>
+          <span class="small" id="countLabel" style="color:var(--muted)">—</span>
+        </div>
+      </div>
+      <div class="b">
+        <div class="list" id="list"></div>
+        <div class="hint">Clima mostrado = referencia estacional. Revisa pronóstico real 3–5 días antes.</div>
+      </div>
+    </section>
+
+    <section class="card" style="grid-column: 1 / -1">
+      <div class="h">
+        <div>
+          <h2>Agenda día a día (optimizada con el PDF)</h2>
+          <div class="small">Incluye traslados, paradas intermedias, visitas y días libres/opcionales.</div>
+        </div>
+        <div class="row">
+          <button id="copyAgenda" type="button">Copiar agenda</button>
+          <span class="small" id="copyStatus" style="color:var(--muted)"></span>
+        </div>
+      </div>
+      <div class="b">
+        <div class="daylist" id="daylist"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  const STOPS = [{"city": "Londres", "country": "Reino Unido", "hotel": "Holiday Inn London - Sutton", "temps": "2–10°C", "weather": "Frío húmedo; lluvia ligera frecuente; viento.", "wear": ["Base térmica ligera + suéter", "Abrigo impermeable / rompe-viento", "Zapato resistente al agua"], "dates": ""}, {"city": "París", "country": "Francia", "hotel": "Kyriad Paris Est - Bois de Vincennes", "temps": "2–11°C", "weather": "Frío moderado; llovizna ocasional; mañanas frías.", "wear": ["Capa media (fleece/suéter)", "Abrigo + bufanda", "Calzado cómodo para caminar"], "dates": ""}, {"city": "Frankfurt", "country": "Alemania", "hotel": "ibis Frankfurt Centrum", "temps": "0–9°C", "weather": "Frío; posibilidad de viento; chubascos.", "wear": ["Base térmica + capa media", "Abrigo cálido", "Guantes delgados"], "dates": ""}, {"city": "Zúrich", "country": "Suiza", "hotel": "Ibis Zürich Messe Airport", "temps": "-1–8°C", "weather": "Frío; posible lluvia/nieve ligera; noches muy frías.", "wear": ["Térmica + suéter", "Abrigo cálido", "Gorro/guantes (mínimo)"], "dates": ""}, {"city": "Innsbruck", "country": "Austria", "hotel": "Bon Alpina", "temps": "-5–6°C", "weather": "Alpes: frío fuerte; nieve posible; aire seco/frío.", "wear": ["Térmica completa (arriba/abajo)", "Abrigo grueso o pluma", "Gorro, guantes y bufanda"], "dates": ""}, {"city": "Venecia", "country": "Italia", "hotel": "San Giuliano", "temps": "4–12°C", "weather": "Húmedo; fresco; brisa; llovizna ocasional.", "wear": ["Capa media + abrigo ligero", "Impermeable / paraguas", "Zapato cómodo (mucho caminar)"], "dates": ""}, {"city": "Roma", "country": "Italia", "hotel": "Green Park Hotel Pamphili", "temps": "6–16°C", "weather": "Más templado; mañanas frescas; posibilidad de lluvia.", "wear": ["Suéter ligero / capa media", "Chamarra ligera", "Paraguas compacto"], "dates": ""}, {"city": "Florencia", "country": "Italia", "hotel": "Hotel Mirage", "temps": "5–15°C", "weather": "Templado a fresco; lluvias cortas posibles.", "wear": ["Capas ligeras", "Chamarra/impermeable fino"], "dates": ""}, {"city": "Niza", "country": "Francia", "hotel": "B&B Antibes Sophia Antipolis", "temps": "8–16°C", "weather": "Costa: templado; brisa; sol variable.", "wear": ["Chamarra ligera", "Gafas de sol", "Capa extra para la noche"], "dates": ""}, {"city": "Barcelona", "country": "España", "hotel": "Hotel CIM VALLES", "temps": "8–17°C", "weather": "Templado; brisa marina; lluvia ocasional.", "wear": ["Capa media ligera", "Chamarra ligera/rompe-viento"], "dates": ""}, {"city": "Madrid", "country": "España", "hotel": "Ibis Madrid Alcorcon Tresaguas", "temps": "4–16°C", "weather": "Día templado y noche fría; clima seco con sol frecuente.", "wear": ["Capas (día/noche)", "Abrigo medio para la noche", "Gafas de sol"], "dates": ""}];
+  const DAYS  = [{"day": 1, "date": "2026-02-24", "route": "México → Londres", "type": "Vuelo / Noche a bordo", "highlights": ["Presentarse en el aeropuerto de CDMX 3 horas antes de la salida", "Vuelo trasatlántico a Londres", "Noche a bordo"], "notes": []}, {"day": 2, "date": "2026-02-25", "route": "Londres", "type": "City tour (panorámico)", "highlights": ["Hyde Park", "Kensington", "Piccadilly Circus", "Regent St. y Oxford St.", "Parlamento y Big Ben", "Palacio de Buckingham (si se realiza y/o el clima lo permite)", "Puentes de la ciudad", "Abadía de Westminster"], "notes": ["Si el vuelo llega después de las 17:00, la visita panorámica se reprogramará para el día siguiente en la mañana."]}, {"day": 3, "date": "2026-02-26", "route": "Londres", "type": "Día libre / Opcional", "highlights": ["Desayuno", "Día libre para actividades personales o excursión opcional"], "notes": []}, {"day": 4, "date": "2026-02-27", "route": "Londres → París (vía Dover/Calais)", "type": "Traslado internacional (ferry)", "highlights": ["Salida hacia el puerto de Dover", "Cruce en ferry a Calais (~75 min)", "Cruce internacional: protocolos migratorios, salir con anticipación", "Continuación por carretera hasta París"], "notes": []}, {"day": 5, "date": "2026-02-28", "route": "París", "type": "City tour (panorámico) + tarde libre", "highlights": ["Avenida de los Campos Elíseos", "Plaza de la Concordia", "Arco del Triunfo", "Asamblea Nacional", "Ópera", "Museo del Louvre (paso)", "Los Inválidos", "Campo de Marte", "Zona Torre Eiffel"], "notes": []}, {"day": 6, "date": "2026-03-01", "route": "París", "type": "Día libre / Opcional", "highlights": ["Desayuno", "Día libre para actividades personales o excursión opcional"], "notes": []}, {"day": 7, "date": "2026-03-02", "route": "París → Luxemburgo → Frankfurt", "type": "Traslado + visita corta", "highlights": ["Parada en Luxemburgo (tiempo libre)", "Continuación hacia Alemania", "Llegada a Frankfurt"], "notes": []}, {"day": 8, "date": "2026-03-03", "route": "Frankfurt → Heidelberg → Zúrich", "type": "Traslado + visita", "highlights": ["Heidelberg: Iglesia del Espíritu Santo y Puente Viejo", "Continuación a Zúrich", "Visita panorámica en Zúrich"], "notes": []}, {"day": 9, "date": "2026-03-04", "route": "Zúrich → Lucerna → Vaduz → Innsbruck", "type": "Traslado escénico", "highlights": ["Lucerna (Lago de los Cuatro Cantones)", "Vaduz (Liechtenstein): breve parada", "Llegada a Innsbruck"], "notes": []}, {"day": 10, "date": "2026-03-05", "route": "Innsbruck → Padua → Venecia", "type": "Traslado + paradas", "highlights": ["Tiempo libre en Innsbruck", "Pueblito de los Alpes tiroleses", "Parada en instalación de arte de piedras preciosas/cristales", "Paso alpino de Brenner", "Padua: visita libre a la Basílica de San Antonio", "Llegada a Venecia"], "notes": []}, {"day": 11, "date": "2026-03-06", "route": "Venecia → Roma", "type": "Visita + traslado", "highlights": ["Venecia: Puente de los Suspiros", "Plaza de San Marcos y Basílica (entorno)", "Tiempo libre", "Salida rumbo a Roma"], "notes": []}, {"day": 12, "date": "2026-03-07", "route": "Roma", "type": "City tour (panorámico) + tarde libre", "highlights": ["Coliseo (visita exterior)", "Circo Máximo", "Basílica de Santa María la Mayor", "Vaticano (zona)", "Tarde libre"], "notes": []}, {"day": 13, "date": "2026-03-08", "route": "Roma", "type": "Día libre / Opcional", "highlights": ["Desayuno", "Día libre para actividades personales o excursión opcional"], "notes": []}, {"day": 14, "date": "2026-03-09", "route": "Roma → Florencia", "type": "Traslado + visita a pie", "highlights": ["Plaza de San Marcos", "Galería de la Academia (paso)", "Mercado de la Paja", "Catedral Santa María del Fiore (fachada)", "Campanario de Giotto", "Baptisterio y Puertas del Paraíso", "Ponte Vecchio", "Plaza Santa Croce y Basílica", "Tiempo libre"], "notes": []}, {"day": 15, "date": "2026-03-10", "route": "Florencia → Pisa → Niza", "type": "Traslado + visita", "highlights": ["Pisa: Torre Inclinada (zona)", "Catedral y Baptisterio (zona)", "Ruta a la Costa Azul", "Llegada a Niza"], "notes": []}, {"day": 16, "date": "2026-03-11", "route": "Niza → Barcelona", "type": "Traslado + visita breve", "highlights": ["Ruta por regiones: Provenza / Alpes / Costa Azul / Occitania", "Barcelona: Sagrada Familia (zona)", "Plaza Cataluña", "Monumento a Colón", "Plaza de España"], "notes": []}, {"day": 17, "date": "2026-03-12", "route": "Barcelona → Zaragoza → Madrid", "type": "Traslado + visita", "highlights": ["Zaragoza: Basílica de Nuestra Señora del Pilar", "Llegada a Madrid"], "notes": []}, {"day": 18, "date": "2026-03-13", "route": "Madrid", "type": "Día libre", "highlights": ["Desayuno", "Día libre para conocer la ciudad o compras personales"], "notes": []}, {"day": 19, "date": "2026-03-14", "route": "Madrid → México", "type": "Regreso", "highlights": ["Desayuno", "Traslado al aeropuerto a la hora indicada", "Vuelo con destino a CDMX"], "notes": []}];
+  const FLIGHTS = {"outbound": {"airline": "Aeromexico", "flight": "AM 7", "from": "Ciudad de México", "to": "London Heathrow", "time": "22:45 → 15:05 (+1)", "dates": "24–25 feb"}, "return": {"airline": "Aeromexico", "flight": "AM 22", "from": "Madrid", "to": "Ciudad de México", "time": "23:45 → 05:10 (+1)", "dates": "14–15 mar"}};
+
+  const iconFor = (country) => ({
+    "Reino Unido":"🇬🇧","Francia":"🇫🇷","Alemania":"🇩🇪","Suiza":"🇨🇭","Austria":"🇦🇹","Italia":"🇮🇹","España":"🇪🇸"
+  }[country] || "📍");
+
+  // Flights tags
+  document.getElementById("flightOut").textContent =
+    `🛫 ${FLIGHTS.outbound.airline} ${FLIGHTS.outbound.flight} · ${FLIGHTS.outbound.from} → ${FLIGHTS.outbound.to} · ${FLIGHTS.outbound.time} (${FLIGHTS.outbound.dates})`;
+  document.getElementById("flightBack").textContent =
+    `🛬 ${FLIGHTS.return.airline} ${FLIGHTS.return.flight} · ${FLIGHTS.return.from} → ${FLIGHTS.return.to} · ${FLIGHTS.return.time} (${FLIGHTS.return.dates})`;
+
+  // Compute date spans per stop (from DAYS)
+  const cityDates = {};
+  STOPS.forEach(s => cityDates[s.city] = []);
+  DAYS.forEach(d => {
+    let last = d.route.includes("→") ? d.route.split("→").pop().trim() : d.route.trim();
+    last = last.split("(")[0].trim();
+    if(cityDates[last]) cityDates[last].push(d.date);
+  });
+  STOPS.forEach(s => {
+    const arr = (cityDates[s.city] || []).slice().sort();
+    if(arr.length === 0) return;
+    s.dates = arr.length === 1 ? arr[0] : `${arr[0]} → ${arr[arr.length-1]}`;
+  });
+
+  // Coordinates (city centers)
+  const coords = {
+    "Londres":[51.5072,-0.1276],
+    "París":[48.8566,2.3522],
+    "Frankfurt":[50.1109,8.6821],
+    "Zúrich":[47.3769,8.5417],
+    "Innsbruck":[47.2692,11.4041],
+    "Venecia":[45.4408,12.3155],
+    "Roma":[41.9028,12.4964],
+    "Florencia":[43.7696,11.2558],
+    "Niza":[43.7102,7.2620],
+    "Barcelona":[41.3851,2.1734],
+    "Madrid":[40.4168,-3.7038]
+  };
+
+  // Map
+  try {
+    const map = L.map('map', {scrollWheelZoom:false});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:18, attribution:'&copy; OpenStreetMap'}).addTo(map);
+
+    const latlngs = [];
+    STOPS.forEach((s) => {
+      const p = coords[s.city];
+      if(!p) return;
+      latlngs.push(p);
+
+      const m = L.marker(p).addTo(map);
+      m.bindPopup(`
+        <div style="font-family:system-ui;min-width:230px">
+          <div style="font-weight:900;margin-bottom:4px">${iconFor(s.country)} ${s.city}</div>
+          <div style="color:#667;margin-bottom:6px">${s.country} · ${s.dates}</div>
+          <div><b>Hotel:</b> ${s.hotel}</div>
+          <div style="margin-top:6px"><b>Clima:</b> ${s.temps} — ${s.weather}</div>
+          <div style="margin-top:6px;color:#667"><b>Tip:</b> capas + abrigo a la mano.</div>
+        </div>
+      `);
+      m.on('click', () => {
+        const el = document.querySelector(`details[data-city="${s.city}"]`);
+        if(el){ el.open = true; el.scrollIntoView({behavior:"smooth", block:"start"}); }
+      });
+    });
+
+    const poly = L.polyline(latlngs, {color:"#4cc9f0", weight:4, opacity:.9}).addTo(map);
+    map.fitBounds(poly.getBounds().pad(0.2));
+    document.getElementById("fitRoute").addEventListener("click", () => map.fitBounds(poly.getBounds().pad(0.2)));
+  } catch(e){
+    document.getElementById("map").innerHTML = '<div style="padding:14px;color:#a9b2c7">No se pudo cargar el mapa (posible falta de internet). El resto funciona sin mapa.</div>';
+  }
+
+  // City list
+  const listEl = document.getElementById("list");
+  const qEl = document.getElementById("q");
+  const countryEl = document.getElementById("country");
+  const expandAllBtn = document.getElementById("expandAll");
+  const collapseAllBtn = document.getElementById("collapseAll");
+  const countLabel = document.getElementById("countLabel");
+
+  [...new Set(STOPS.map(s=>s.country))].sort((a,b)=>a.localeCompare(b,"es")).forEach(c=>{
+    const opt=document.createElement("option"); opt.value=c; opt.textContent=c; countryEl.appendChild(opt);
+  });
+
+  function renderCities(){
+    const q=(qEl.value||"").trim().toLowerCase();
+    const ctry=countryEl.value;
+
+    const filtered = STOPS.filter(s=>{
+      const t = (s.city+" "+s.country+" "+(s.dates||"")+" "+s.hotel).toLowerCase();
+      const okText = !q || t.includes(q);
+      const okCountry = (ctry==="all") || (s.country===ctry);
+      return okText && okCountry;
+    });
+
+    countLabel.textContent = `${filtered.length} / ${STOPS.length} ciudades`;
+    listEl.innerHTML="";
+
+    filtered.forEach((s, idx)=>{
+      const d=document.createElement("details");
+      d.dataset.city = s.city;
+
+      const sum=document.createElement("summary");
+      const left=document.createElement("div"); left.className="left";
+      const badge=document.createElement("div"); badge.className="badge"; badge.textContent=iconFor(s.country);
+      const city=document.createElement("div"); city.className="city";
+      city.innerHTML = `<div class="name">${idx+1}. ${s.city}</div><div class="meta">${s.country} · ${s.dates || ""} · 🏨 ${s.hotel}</div>`;
+      left.appendChild(badge); left.appendChild(city);
+
+      const right=document.createElement("div"); right.className="right";
+      right.innerHTML = `<div class="temps">🌡️ ${s.temps}</div><div class="nights">🧳 capas</div>`;
+      sum.appendChild(left); sum.appendChild(right);
+
+      const detail=document.createElement("div"); detail.className="detail";
+      detail.innerHTML = `
+        <div class="detail-grid">
+          <div class="box">
+            <h3>Clima típico</h3>
+            <ul>
+              <li><b>Rango aprox.:</b> ${s.temps}</li>
+              <li><b>Condiciones:</b> ${s.weather}</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h3>Qué ponerte</h3>
+            <ul>${s.wear.map(x=>`<li>${x}</li>`).join("")}</ul>
+          </div>
+          <div class="box" style="grid-column:1/-1">
+            <h3>Recomendaciones rápidas</h3>
+            <ul>
+              <li>Capas: base + media + abrigo (y si llueve, impermeable).</li>
+              <li>Gafas de sol siempre en mochila.</li>
+              <li>Calzado cómodo: vas a caminar muchísimo.</li>
+            </ul>
+            <div class="chips">
+              <span class="chip">🧥 <b>Abrigo:</b> no negociable</span>
+              <span class="chip">🧊 <b>Térmica:</b> Alpes/noches</span>
+              <span class="chip">☔ <b>Impermeable:</b> Londres/París</span>
+              <span class="chip">🕶️ <b>Gafas:</b> sol/nieve</span>
+            </div>
+          </div>
+        </div>
+      `;
+      d.appendChild(sum); d.appendChild(detail);
+      listEl.appendChild(d);
+    });
+  }
+
+  qEl.addEventListener("input", renderCities);
+  countryEl.addEventListener("change", renderCities);
+  expandAllBtn.addEventListener("click", ()=>document.querySelectorAll("#list details").forEach(d=>d.open=true));
+  collapseAllBtn.addEventListener("click", ()=>document.querySelectorAll("#list details").forEach(d=>d.open=false));
+  renderCities();
+
+  // Day-by-day agenda
+  const daylist=document.getElementById("daylist");
+  const copyBtn=document.getElementById("copyAgenda");
+  const copyStatus=document.getElementById("copyStatus");
+
+  function niceDate(iso){
+    const d=new Date(iso+"T00:00:00");
+    return d.toLocaleDateString("es-MX",{weekday:"long", year:"numeric", month:"short", day:"2-digit"});
+  }
+
+  function hotelForRoute(route){
+    let last = route.includes("→") ? route.split("→").pop().trim() : route.trim();
+    last = last.split("(")[0].trim();
+    const stop = STOPS.find(s=>s.city===last);
+    return stop ? stop.hotel : "";
+  }
+
+  DAYS.forEach(d=>{
+    const el=document.createElement("div"); el.className="day";
+    const hotel = hotelForRoute(d.route);
+    const highlights = d.highlights.map(x=>`<li>${x}</li>`).join("");
+    const notes = (d.notes||[]).length ? `<div class="hint" style="margin-top:8px"><b>Nota:</b> ${(d.notes||[]).join(" ")}</div>` : "";
+    const tag = d.type.includes("Traslado") ? "🚌 Traslado" : (d.type.includes("Día libre") ? "🧘 Día libre" : "🗺️ Visita");
+
+    el.innerHTML = `
+      <div class="top">
+        <div>
+          <div class="d">Día ${d.day} · 📅 ${niceDate(d.date)}</div>
+          <div class="where">
+            <span class="type">${d.type}</span><br/>
+            🧭 ${d.route} ${hotel ? `· 🏨 ${hotel}` : ""}
+          </div>
+        </div>
+        <div class="row">
+          <span class="tag">🍳 Desayuno</span>
+          <span class="tag">${tag}</span>
+        </div>
+      </div>
+      <div class="box" style="margin-top:10px">
+        <h3>Lo importante del día</h3>
+        <ul>${highlights}</ul>
+        ${notes}
+      </div>
+    `;
+    daylist.appendChild(el);
+  });
+
+  copyBtn.addEventListener("click", async ()=>{
+    const text = DAYS.map(d=> {
+      const hi = d.highlights.join("; ");
+      const nt = (d.notes||[]).join(" ");
+      return `Día ${d.day} (${d.date}): ${d.route} — ${d.type} | ${hi}${nt ? " | Nota: "+nt : ""}`;
+    }).join("\n");
+    try{ await navigator.clipboard.writeText(text); copyStatus.textContent="Copiado ✅"; setTimeout(()=>copyStatus.textContent="",1500); }
+    catch(e){ copyStatus.textContent="No se pudo copiar (permiso del navegador)."; }
+  });
+
+  // Packing checklist
+  const packingItems = [
+    "Base térmica (arriba)","Base térmica (abajo)","Abrigo impermeable/rompe-viento",
+    "Suéter/fleece (capa media)","Guantes","Gorro","Bufanda/cuello",
+    "Zapatos cómodos resistentes al agua","Calcetines térmicos","Gafas de sol",
+    "Paraguas compacto / impermeable","Bálsamo labial / crema","Adaptador de corriente (EU)","Power bank"
+  ];
+  const packingEl=document.getElementById("packing");
+  const checkedCountEl=document.getElementById("checkedCount");
+  const KEY_PACK="diego_ultra_pack_2026_v2";
+  const state=new Set(JSON.parse(localStorage.getItem(KEY_PACK) || "[]"));
+
+  function renderPack(){
+    packingEl.innerHTML="";
+    packingItems.forEach((item)=>{
+      const wrap=document.createElement("label");
+      wrap.style.display="flex"; wrap.style.gap="10px"; wrap.style.alignItems="center"; wrap.style.padding="8px 4px";
+      wrap.style.cursor="pointer"; wrap.style.color="var(--muted)";
+
+      const cb=document.createElement("input");
+      cb.type="checkbox"; cb.checked=state.has(item); cb.style.transform="scale(1.15)";
+      const txt=document.createElement("span");
+      txt.textContent=item; txt.style.color = cb.checked ? "var(--text)" : "var(--muted)";
+
+      cb.addEventListener("change", ()=>{
+        if(cb.checked) state.add(item); else state.delete(item);
+        localStorage.setItem(KEY_PACK, JSON.stringify([...state]));
+        checkedCountEl.textContent=String(state.size);
+        txt.style.color = cb.checked ? "var(--text)" : "var(--muted)";
+      });
+
+      wrap.appendChild(cb); wrap.appendChild(txt);
+      packingEl.appendChild(wrap);
+    });
+    checkedCountEl.textContent=String(state.size);
+  }
+  renderPack();
+
+  // Notes
+  const KEY_NOTES="diego_ultra_notes_2026_v2";
+  const notes=document.getElementById("notes");
+  notes.value = localStorage.getItem(KEY_NOTES) || "";
+  notes.addEventListener("input", ()=>localStorage.setItem(KEY_NOTES, notes.value));
+
+  // Countdown (to 24-Feb)
+  const countdownEl=document.getElementById("countdown");
+  const start=new Date("2026-02-24T00:00:00");
+  function updateCountdown(){
+    const now=new Date();
+    const diff=Math.ceil((start-now)/(1000*60*60*24));
+    countdownEl.textContent = diff>0 ? (diff+" días") : (diff===0 ? "Hoy" : "En curso");
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 60*60*1000);
+
+  document.getElementById("printBtn").addEventListener("click", ()=>window.print());
+
+  // Travel mode
+  const sw=document.getElementById("travelSwitch");
+  const KEY_MODE="diego_ultra_travel_mode_v2";
+  function applyMode(on){
+    if(on){ sw.classList.add("on"); sw.setAttribute("aria-checked","true"); document.documentElement.style.fontSize="18px"; }
+    else { sw.classList.remove("on"); sw.setAttribute("aria-checked","false"); document.documentElement.style.fontSize="16px"; }
+    localStorage.setItem(KEY_MODE, on ? "1" : "0");
+  }
+  sw.addEventListener("click", ()=>applyMode(!sw.classList.contains("on")));
+  applyMode(localStorage.getItem(KEY_MODE)==="1");
+</script>
+</body>
+</html>
